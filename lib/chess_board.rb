@@ -96,7 +96,7 @@ class Board
       end
       print "\n\n"
     end
-    print "   #{[*'A'..'H'].join('  ')}"
+    puts "   #{[*'A'..'H'].join('  ')}"
   end
 end
 
