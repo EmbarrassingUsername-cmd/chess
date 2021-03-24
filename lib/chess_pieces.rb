@@ -1,29 +1,32 @@
+# frozen_string_literal: true
+
 require_relative 'chess_moves'
 
 class Piece
   include Moves
   attr_accessor :colour, :symbol
-  def initialize (colour)
+
+  def initialize(colour)
     @colour = colour
-    @@darkmode = true
+    @darkmode = true
   end
 end
 
-
 class King < Piece
-  def initialize (colour)
-    super (colour)
-    @symbol = (colour == 'white') ^ @@darkmode ? "\u2654": "\u265A"
+  def initialize(colour)
+    super colour
+    @symbol = (colour == 'white') ^ @darkmode ? "\u2654" : "\u265A"
   end
+
   def valid_moves(position)
     valid_moves_king(position)
   end
 end
 
 class Queen < Piece
-  def initialize (colour)
-    super (colour)
-    @symbol = (colour == 'white') ^ @@darkmode ? "\u2655": "\u265B"
+  def initialize(colour)
+    super colour
+    @symbol = (colour == 'white') ^ @darkmode ? "\u2655" : "\u265B"
   end
 
   def valid_moves(position)
@@ -32,9 +35,9 @@ class Queen < Piece
 end
 
 class Rook < Piece
-  def initialize (colour)
-    super (colour)
-    @symbol = (colour == 'white') ^ @@darkmode ? "\u2656": "\u265C"
+  def initialize(colour)
+    super colour
+    @symbol = (colour == 'white') ^ @darkmode ? "\u2656" : "\u265C"
   end
 
   def valid_moves(position)
@@ -43,9 +46,9 @@ class Rook < Piece
 end
 
 class Bishop < Piece
-  def initialize (colour)
-    super (colour)
-    @symbol = (colour == 'white') ^ @@darkmode ? "\u2657": "\u265D"
+  def initialize(colour)
+    super colour
+    @symbol = (colour == 'white') ^ @darkmode ? "\u2657" : "\u265D"
   end
 
   def valid_moves(position)
@@ -54,9 +57,9 @@ class Bishop < Piece
 end
 
 class Knight < Piece
-  def initialize (colour)
-    super (colour)
-    @symbol = (colour == 'white') ^ @@darkmode ? "\u2658": "\u265E"
+  def initialize(colour)
+    super colour
+    @symbol = (colour == 'white') ^ @darkmode ? "\u2658" : "\u265E"
   end
 
   def valid_moves(position)
@@ -65,15 +68,15 @@ class Knight < Piece
 end
 
 class Pawn < Piece
-  def initialize (colour)
-    super (colour)
-    @symbol = (colour == 'white') ^ @@darkmode ? "\u2659": "\u265F"
+  attr_accessor :moved
+
+  def initialize(colour)
+    super colour
+    @symbol = (colour == 'white') ^ @darkmode ? "\u2659" : "\u265F"
+    @moved = false
   end
 
   def valid_moves(position)
     valid_moves_pawn(position)
   end
 end
-
-
-

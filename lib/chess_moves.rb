@@ -1,4 +1,6 @@
-# Defines possible moves for each class
+# frozen_string_literal: true
+
+# Defines possible moves for each piece
 module Moves
   def valid_moves_rook(position)
     moves = (([[0] * 15, [*-7..7]].transpose + [[*-7..7], [0] * 15].transpose)).map do |translation|
