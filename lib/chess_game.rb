@@ -59,45 +59,43 @@ module Game
     false
   end
 
-  def pawn_check?(king)
-    positions = king.piece.colour == 'white' ? [[1, 1], [-1, 1]] : [[-1, -1], [1, -1]]
-    positions.each do |translation|
-      square = board_square([translation, king.position].transpose.map(&:sum))
-      return true if (square.piece.instance_of? Pawn) && (square.piece.colour != king.piece.colour)
+  def check_for_piece(king, piece_to_find, squares)
+    squares.each do |square|
+      return true if (square.piece.instance_of? piece_to_find) && (square.piece.colour != king.piece.colour)
     end
     false
+  end
+
+  def check_for_unblocked_piece(king, pieces_to_find, squares)
+    pieces_in_line = []
+    squares.each do |square|
+      if (pieces_to_find.include? square.piece.class) && square.piece.colour != king.piece.colour
+        pieces_in_line << square
+      end
+    end
+    return false if pieces_in_line.all? { |piece| blocked?(piece.position, king.position) }
+
+    true
+  end
+
+  def pawn_check?(king)
+    translations = king.piece.colour == 'white' ? [[1, 1], [-1, 1]] : [[-1, -1], [1, -1]]
+    squares = translations.map { |translation| board_square([translation, king.position].transpose.map(&:sum)) }
+    check_for_piece(king, Pawn, squares)
   end
 
   def adjacent_to_king?(king)
     squares = king.piece.valid_moves_king(king.position).map { |square| board_square(square) }
-    squares.each do |square|
-      return true if square.piece.instance_of? King
-    end
-    false
+    check_for_piece(king, King, squares)
   end
 
   def bishop_check?(king)
     squares = king.piece.valid_moves_bishop(king.position).map { |square| board_square(square) }
-    pieces_in_line = []
-    squares.each do |square|
-      if ([Bishop, Queen].include? square.piece.class) && square.piece.colour != king.piece.colour
-        pieces_in_line << square
-      end
-    end
-    return false if pieces_in_line.all? { |piece| blocked?(piece.position, king.position) }
-
-    true
+    check_for_unblocked_piece(king, [Bishop, Queen], squares)
   end
+
   def rook_check?(king)
     squares = king.piece.valid_moves_rook(king.position).map { |square| board_square(square) }
-    pieces_in_line = []
-    squares.each do |square|
-      if ([Rook, Queen].include? square.piece.class) && square.piece.colour != king.piece.colour
-        pieces_in_line << square
-      end
-    end
-    return false if pieces_in_line.all? { |piece| blocked?(piece.position, king.position) }
-
-    true
+    check_for_unblocked_piece(king, [Queen, Rook], squares)
   end
 end
