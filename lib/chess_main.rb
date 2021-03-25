@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-
+require 'pry'
 require_relative 'chess_pieces'
 require_relative 'chess_board'
 require_relative 'chess_game'
@@ -30,4 +30,11 @@ a.print_board
 p a.bishop_check?(k)
 a.board[4][2].piece = Queen.new('black')
 p a.rook_check?(k)
+a.board[4][2].piece = Queen.new('black')
 a.print_board
+p a.board[1][1].piece.valid_moves([1, 1])
+a.place_starting_pieces
+a.print_board
+a.board[1][2].piece = Pawn.new('black')
+a.print_board
+p a.legal_move?([0, 1], [1, 2])
