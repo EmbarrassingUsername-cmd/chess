@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-require 'pry'
+
 # Methods relating to game logic moving pieces check and checkmate
 module Game
   def move_piece(position, moving_to)
@@ -17,12 +17,10 @@ module Game
       return false if blocked?(position, moving_to)
 
       true
-    elsif piece.instance_of? Knight
-      true
     elsif piece.instance_of? Pawn
       legal_move_pawn?(position, moving_to)
     else
-      false
+      piece.instance_of? Knight
     end
   end
 
@@ -38,6 +36,7 @@ module Game
     starting_square = board_square(position)
     return false unless starting_square.piece.valid_moves(position).include?(moving_to)
     return false if king_checked_move?(position, moving_to, find_king(starting_square.piece.colour))
+    return true unless board_square(moving_to).piece.class.superclass == Piece
 
     starting_square.piece.colour != board_square(moving_to).piece.colour
   end
@@ -46,10 +45,13 @@ module Game
     translation = [moving_to, position].transpose.map { |x, y| x - y }
     maximum = translation.map(&:abs).max
     step = translation.map { |i| i / maximum }
-    intermediate_squares = (1.upto(maximum - 1).map do |i|
+    contains_piece?(intermediate_squares(maximum, position, step))
+  end
+
+  def intermediate_squares(maximum, position, step)
+    1.upto(maximum - 1).map do |i|
       [position, step.map { |value| value * i }].transpose.map(&:sum)
-    end)
-    contains_piece?(intermediate_squares)
+    end
   end
 
   def contains_piece?(array)
@@ -62,7 +64,7 @@ module Game
     output = king_checked_general?(king)
     move_piece(moving_to, position)
     board_square(moving_to).piece = temp
-    p output
+    output
   end
 
   def king_checked_general?(king)
@@ -126,11 +128,30 @@ module Game
   end
 
   # called if king is in check at turn start will check all moves for white
-  def check_mate?(king)
+  def any_legal_moves?(colour)
+    all_moves_of_a_colour?(colour).each do |moves_by_piece|
+      moves_by_piece.each do |move_pair|
+        return true if legal_move?(move_pair[0], move_pair[1])
+      end
+    end
+    false
+  end
 
+  def all_moves_of_a_colour?(colour)
+    pieces = find_all_pieces_of_a_colour(colour)
+    pieces.map do |square|
+      move_to = square.piece.valid_moves(square.position)
+      ([square.position] * move_to.length).zip(move_to)
+    end
   end
 
   def find_all_pieces_of_a_colour(colour)
-    @board.each_with_object()
+    board.each_with_object([]) do |column, array|
+      column.each do |square|
+        next if square.piece.instance_of? String
+
+        square.piece.colour == colour ? array << square : next
+      end
+    end
   end
 end

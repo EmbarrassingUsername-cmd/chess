@@ -37,4 +37,6 @@ a.place_starting_pieces
 a.print_board
 a.board[1][2].piece = Pawn.new('black')
 a.print_board
-p a.legal_move?([0, 1], [1, 2])
+p a.legal_move?([3, 0], [0, 3])
+p a.board[1][3]
+p a.any_legal_moves?('white')
