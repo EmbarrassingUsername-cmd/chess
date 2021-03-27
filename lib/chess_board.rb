@@ -2,9 +2,11 @@
 
 require_relative 'chess_game'
 require_relative 'chess_pieces'
+require_relative 'chess_play'
 # Class containing chess board initialises board and places pieces
 class Board
-  include Game
+  include GameLogic
+  include GamePlay
   attr_reader :board
 
   HORIZONTAL_LINES = [
@@ -94,6 +96,10 @@ class Board
       print "\n\n"
     end
     puts "   #{[*'A'..'H'].join('  ')}"
+  end
+
+  def a_piece?(square)
+    square.piece.class.superclass == Piece
   end
 end
 

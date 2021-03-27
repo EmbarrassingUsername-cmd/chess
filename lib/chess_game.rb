@@ -1,7 +1,7 @@
 # frozen_string_literal: true
-
+require 'pry'
 # Methods relating to game logic moving pieces check and checkmate
-module Game
+module GameLogic
   def move_piece(position, moving_to)
     initial_piece = board_square(position).piece
     board_square(moving_to).piece = initial_piece
@@ -27,18 +27,22 @@ module Game
   def legal_move_pawn?(position, moving_to)
     if position[0] == moving_to[0]
       !blocked?(position, moving_to)
-    else
+    elsif a_piece?(board_square(moving_to))
       board_square(moving_to).piece.colour != board_square(position).piece.colour
+    else
+      false
     end
   end
 
   def legal_move_general?(position, moving_to)
     starting_square = board_square(position)
     return false unless starting_square.piece.valid_moves(position).include?(moving_to)
-    return false if king_checked_move?(position, moving_to, find_king(starting_square.piece.colour))
-    return true unless board_square(moving_to).piece.class.superclass == Piece
 
-    starting_square.piece.colour != board_square(moving_to).piece.colour
+    if a_piece?(board_square(moving_to))
+      return false if starting_square.piece.colour == board_square(moving_to).piece.colour
+    end
+    return false if king_checked_move?(position, moving_to)
+    return true unless a_piece?(board_square(moving_to))
   end
 
   def blocked?(position, moving_to)
@@ -55,13 +59,14 @@ module Game
   end
 
   def contains_piece?(array)
-    array.any? { |position| board_square(position).piece.class.superclass == Piece }
+    array.any? { |position| a_piece?(board_square(position)) }
   end
 
-  def king_checked_move?(position, moving_to, king)
+  def king_checked_move?(position, moving_to)
     temp = board_square(moving_to).piece
     move_piece(position, moving_to)
-    output = king_checked_general?(king)
+    board_square(moving_to).piece.colour
+    output = king_checked_general?(find_king(board_square(moving_to).piece.colour))
     move_piece(moving_to, position)
     board_square(moving_to).piece = temp
     output
@@ -74,6 +79,7 @@ module Game
   def find_king(colour)
     @board.each do |column|
       column.each do |square|
+        square
         return square if (square.piece.instance_of? King) && (square.piece.colour == colour)
       end
     end
@@ -127,10 +133,10 @@ module Game
     check_for_unblocked_piece(king, [Queen, Rook], squares)
   end
 
-  # called if king is in check at turn start will check all moves for white
   def any_legal_moves?(colour)
     all_moves_of_a_colour?(colour).each do |moves_by_piece|
       moves_by_piece.each do |move_pair|
+
         return true if legal_move?(move_pair[0], move_pair[1])
       end
     end

@@ -4,7 +4,7 @@ require_relative 'chess_moves'
 
 class Piece
   include Moves
-  attr_accessor :colour, :symbol
+  attr_accessor :colour, :symbol, :moved
 
   def initialize(colour)
     @colour = colour
@@ -68,7 +68,6 @@ class Knight < Piece
 end
 
 class Pawn < Piece
-  attr_accessor :moved
 
   def initialize(colour)
     super colour
