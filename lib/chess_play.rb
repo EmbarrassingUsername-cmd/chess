@@ -19,16 +19,38 @@ module GamePlay
 
   def play_round(colour)
     puts "#{colour} enter coordinate of piece to move e.g. A1"
-    start_position = nil
-    finish_position = nil
+    positions = get_start_finish(colour)
+    start_position = positions[0]
+    finish_position = positions[1]
+    take_en_passant(finish_position) if board_square(start_position).piece.instance_of? Pawn
+    en_passant(start_position, finish_position)
+    move_piece(start_position, finish_position)
+  end
+
+  def get_start_finish(colour)
     loop do
       start_position = validate_choice_from(colour.downcase, gets.chomp.downcase)
       finish_position = validate_choice_to(gets.chomp.downcase)
-      break if legal_move?(start_position, finish_position)
+      return [start_position, finish_position] if legal_move?(start_position, finish_position)
 
       puts 'Illegal move enter coordinate of piece to move'
     end
-    move_piece(start_position, finish_position)
+  end
+
+  def en_passant(start_position, finish_position)
+    if board_square(start_position).piece.instance_of? Pawn
+      translation = [finish_position, start_position].transpose.map { |x, y| x - y }
+      maximum = translation.map(&:abs).max
+      step = translation.map { |i| i / maximum }
+      @en_passant_virtual = board_square(finish_position)
+      return @en_passant = intermediate_squares(maximum, start_position, step).flatten
+    end
+
+    @en_passant = nil
+  end
+
+  def take_en_passant(finish_position)
+    @en_passant_virtual.piece = empty_square(finish_position + [0, 1]) if @en_passant == finish_position
   end
 
   def validate_choice_from(colour, input)
@@ -49,11 +71,11 @@ module GamePlay
   end
 
   def validate_choice_to(input)
+    converted_input = convert_input(input)
     loop do
-      converted_input = convert_input(input)
       if converted_input.include?(nil)
         puts 'Enter valid square'
-        input = gets.downcase
+        converted_input = convert_input(gets.chomp.downcase)
         next
       end
       return converted_input

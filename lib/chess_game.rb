@@ -1,12 +1,12 @@
 # frozen_string_literal: true
-require 'pry'
+
 # Methods relating to game logic moving pieces check and checkmate
 module GameLogic
   def move_piece(position, moving_to)
     initial_piece = board_square(position).piece
     board_square(moving_to).piece = initial_piece
     board_square(position).piece = empty_square(position)
-    initial_piece.moved = true if initial_piece.instance_of? Pawn
+    initial_piece.moved = true
   end
 
   def legal_move?(position, moving_to)
@@ -30,7 +30,7 @@ module GameLogic
     elsif a_piece?(board_square(moving_to))
       board_square(moving_to).piece.colour != board_square(position).piece.colour
     else
-      false
+      @en_passant == moving_to
     end
   end
 
@@ -38,11 +38,12 @@ module GameLogic
     starting_square = board_square(position)
     return false unless starting_square.piece.valid_moves(position).include?(moving_to)
 
-    if a_piece?(board_square(moving_to))
-      return false if starting_square.piece.colour == board_square(moving_to).piece.colour
+    if a_piece?(board_square(moving_to)) && starting_square.piece.colour == board_square(moving_to).piece.colour
+      return false
     end
     return false if king_checked_move?(position, moving_to)
-    return true unless a_piece?(board_square(moving_to))
+
+    true
   end
 
   def blocked?(position, moving_to)
@@ -79,7 +80,6 @@ module GameLogic
   def find_king(colour)
     @board.each do |column|
       column.each do |square|
-        square
         return square if (square.piece.instance_of? King) && (square.piece.colour == colour)
       end
     end
