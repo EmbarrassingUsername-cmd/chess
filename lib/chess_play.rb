@@ -1,6 +1,6 @@
 
-require 'pry'
 # Module containing methods for user to interact adn play with game
+
 module GamePlay
   def play_game
     place_starting_pieces
@@ -19,7 +19,10 @@ module GamePlay
 
   def play_round(colour)
     puts "#{colour} enter coordinate of piece to move e.g. A1"
-    positions = get_start_finish(colour)
+    input = gets.chomp.downcase
+    return alterantive_input(colour.downcase, input) if %w[ooo oo save].include? input
+
+    positions = get_start_finish(colour, input)
     start_position = positions[0]
     finish_position = positions[1]
     take_en_passant(finish_position) if board_square(start_position).piece.instance_of? Pawn
@@ -27,13 +30,14 @@ module GamePlay
     move_piece(start_position, finish_position)
   end
 
-  def get_start_finish(colour)
+  def get_start_finish(colour, input)
     loop do
-      start_position = validate_choice_from(colour.downcase, gets.chomp.downcase)
+      start_position = validate_choice_from(colour.downcase, input)
       finish_position = validate_choice_to(gets.chomp.downcase)
       return [start_position, finish_position] if legal_move?(start_position, finish_position)
 
       puts 'Illegal move enter coordinate of piece to move'
+      input = gets.chomp.downcase
     end
   end
 
@@ -88,6 +92,41 @@ module GamePlay
     x = [*'a'..'h'].freeze.index(input[0])
     y = [*'1'..'8'].freeze.index(input[1])
     [x, y]
+  end
+
+  def alterantive_input(colour, input)
+    save if input == 'save'
+    king = colour == 'white' ? board_square([4, 0]) : board_square([4, 7])
+    if input == 'oo'
+      rook = colour == 'white' ? board_square([7, 0]) : board_square([7, 7])
+      side = 'king'
+    elsif input == 'ooo'
+      rook = colour == 'white' ? board_square([0, 0]) : board_square([0, 7])
+      side = 'queen'
+    end
+    castle(colour, king, rook, side)
+  end
+
+  def castle(colour, king, rook, side)
+    return play_round(colour) unless can_castle?(king, rook, side)
+
+    if side == 'queen'
+      king_transpose = [-2, 0]
+      rook_transpose = [3, 0]
+    else
+      king_transpose = [2, 0]
+      rook_transpose = [-2, 0]
+    end
+    king_position = [king.position, king_transpose].transpose.map(&:sum)
+    rook_position = [rook.position, rook_transpose].transpose.map(&:sum)
+    castle_move(king, king_position, rook, rook_position)
+  end
+
+  def castle_move(king, king_position, rook, rook_position)
+    board_square(king_position).piece = king.piece
+    king.piece = empty_square(king.position)
+    board_square(rook_position).piece = rook.piece
+    rook.piece = empty_square(rook.position)
   end
 
   def game_end?(colour)

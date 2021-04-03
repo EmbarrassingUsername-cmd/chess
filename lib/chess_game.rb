@@ -160,4 +160,24 @@ module GameLogic
       end
     end
   end
+
+  def can_castle?(king, rook, side)
+    return false if blocked?(king.position, rook.position)
+    return false if king_checked_general?(king)
+    return false if king.piece.moved || rook.piece.moved
+
+    not_blocked_by_check?(king, side)
+  end
+
+  def not_blocked_by_check?(king, side)
+    step = side == 'king' ? [1, 0] : [-1, 0]
+    intermediate_squares(3, king.position, step).each do |position|
+      square = board_square(position)
+      square.piece = king.piece
+      output = king_checked_general?(square)
+      square.piece = empty_square(square.position)
+      return false if output
+    end
+    true
+  end
 end

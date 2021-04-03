@@ -6,10 +6,19 @@ require_relative 'chess_game'
 require 'pry'
 
 a = Board.new
-binding.pry
-
 a.play_game
 
+a = Board.new
+a.place_starting_pieces
+a.board_square([6, 0]).piece = a.empty_square([6, 0])
+a.board_square([5, 0]).piece = a.empty_square([5, 0])
+a.print_board
+p a.castle?(a.board_square([4, 0]), a.board_square([7, 0]), 'king')
+p a.castle?(a.board_square([4, 0]), a.board_square([0, 0]), 'queen')
+a.board_square([1, 0]).piece = a.empty_square([1, 0])
+a.board_square([2, 0]).piece = a.empty_square([2, 0])
+a.board_square([3, 0]).piece = a.empty_square([3, 0])
+p a.castle?(a.board_square([4, 0]), a.board_square([0, 0]), 'queen')
 
 a = Board.new
 a.place_starting_pieces
