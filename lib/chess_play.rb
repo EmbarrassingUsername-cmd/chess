@@ -1,17 +1,15 @@
 
 # Module containing methods for user to interact adn play with game
-
+require 'pry'
 module GamePlay
   def play_game
     place_starting_pieces
     print_board
     loop do
       play_round('White')
-      print_board
       break if game_end?('black')
 
       play_round('Black')
-      print_board
       break if game_end?('white')
     end
     win_lose_draw
@@ -28,6 +26,7 @@ module GamePlay
     take_en_passant(finish_position) if board_square(start_position).piece.instance_of? Pawn
     en_passant(start_position, finish_position)
     move_piece(start_position, finish_position)
+    print_board
   end
 
   def get_start_finish(colour, input)
@@ -105,6 +104,7 @@ module GamePlay
       side = 'queen'
     end
     castle(colour, king, rook, side)
+    print_board
   end
 
   def castle(colour, king, rook, side)
@@ -123,10 +123,8 @@ module GamePlay
   end
 
   def castle_move(king, king_position, rook, rook_position)
-    board_square(king_position).piece = king.piece
-    king.piece = empty_square(king.position)
-    board_square(rook_position).piece = rook.piece
-    rook.piece = empty_square(rook.position)
+    move_piece(king.position, king_position)
+    move_piece(rook.position, rook_position)
   end
 
   def game_end?(colour)

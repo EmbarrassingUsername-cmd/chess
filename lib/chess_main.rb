@@ -5,6 +5,15 @@ require_relative 'chess_board'
 require_relative 'chess_game'
 require 'pry'
 
+
+a = Board.new
+a.place_starting_pieces
+a.board_square([6, 0]).piece = a.empty_square([6, 0])
+a.board_square([5, 0]).piece = a.empty_square([5, 0])
+a.print_board
+a.play_round('white')
+a.play_round('white')
+
 a = Board.new
 a.play_game
 

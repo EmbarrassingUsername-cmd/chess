@@ -114,7 +114,10 @@ module GameLogic
 
   def pawn_check?(king)
     translations = king.piece.colour == 'white' ? [[1, 1], [-1, 1]] : [[-1, -1], [1, -1]]
-    squares = translations.map { |translation| board_square([translation, king.position].transpose.map(&:sum)) }
+    squares = translations.map { |translation| [translation, king.position].transpose.map(&:sum) }
+    squares = squares.select { |translation| translation.all? { |n| n.between?(0, 7) } }
+    p squares
+    squares = squares.map { |square| board_square(square) }
     check_for_piece(king, Pawn, squares)
   end
 
