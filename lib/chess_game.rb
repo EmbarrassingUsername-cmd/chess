@@ -2,11 +2,37 @@
 
 # Methods relating to game logic moving pieces check and checkmate
 module GameLogic
-  def move_piece(position, moving_to)
+  def move_piece(position, moving_to, move: false)
     initial_piece = board_square(position).piece
     board_square(moving_to).piece = initial_piece
     board_square(position).piece = empty_square(position)
-    initial_piece.moved = true
+    initial_piece.moved = true if move
+    promotion_check(moving_to, initial_piece.colour) if initial_piece.instance_of? Pawn
+  end
+
+  def promotion_check(position, colour)
+    return unless [0, 7].include? position[1]
+
+    piece = nil
+    loop do
+      puts 'Enter piece to promote to Q, K, B, R'
+      piece = gets.chomp.downcase
+      break if %w[q b k r].include? piece
+    end
+    promote_piece(piece, position, colour)
+  end
+
+  def promote_piece(piece, position, colour)
+    case piece
+    when 'q'
+      board_square(position).piece = Queen.new(colour)
+    when 'r'
+      board_square(position).piece = Rook.new(colour)
+    when 'k'
+      board_square(position).piece = Knight.new(colour)
+    when 'b'
+      board_square(position).piece = Bishop.new(colour)
+    end
   end
 
   def legal_move?(position, moving_to)
@@ -116,7 +142,6 @@ module GameLogic
     translations = king.piece.colour == 'white' ? [[1, 1], [-1, 1]] : [[-1, -1], [1, -1]]
     squares = translations.map { |translation| [translation, king.position].transpose.map(&:sum) }
     squares = squares.select { |translation| translation.all? { |n| n.between?(0, 7) } }
-    p squares
     squares = squares.map { |square| board_square(square) }
     check_for_piece(king, Pawn, squares)
   end
@@ -139,7 +164,6 @@ module GameLogic
   def any_legal_moves?(colour)
     all_moves_of_a_colour?(colour).each do |moves_by_piece|
       moves_by_piece.each do |move_pair|
-
         return true if legal_move?(move_pair[0], move_pair[1])
       end
     end
@@ -165,6 +189,7 @@ module GameLogic
   end
 
   def can_castle?(king, rook, side)
+    return false unless (king.piece.instance_of? King) && (rook.piece.instance_of? Rook)
     return false if blocked?(king.position, rook.position)
     return false if king_checked_general?(king)
     return false if king.piece.moved || rook.piece.moved

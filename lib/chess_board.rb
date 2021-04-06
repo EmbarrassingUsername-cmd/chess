@@ -3,11 +3,13 @@
 require_relative 'chess_game'
 require_relative 'chess_pieces'
 require_relative 'chess_play'
+require_relative 'chess_save_load'
 # Class containing chess board initialises board and places pieces
 class Board
   include GameLogic
   include GamePlay
-  attr_reader :board
+  include Save
+  attr_reader :board, :turn
 
   HORIZONTAL_LINES = [
     [[0, 0], [1, 0], [2, 0], [3, 0], [4, 0], [5, 0], [6, 0], [7, 0]],

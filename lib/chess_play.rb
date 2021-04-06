@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 
 # Module containing methods for user to interact adn play with game
 require 'pry'
@@ -5,6 +6,11 @@ module GamePlay
   def play_game
     place_starting_pieces
     print_board
+    loop_rounds
+    win_lose_draw
+  end
+
+  def loop_rounds
     loop do
       play_round('White')
       break if game_end?('black')
@@ -12,7 +18,6 @@ module GamePlay
       play_round('Black')
       break if game_end?('white')
     end
-    win_lose_draw
   end
 
   def play_round(colour)
@@ -25,7 +30,7 @@ module GamePlay
     finish_position = positions[1]
     take_en_passant(finish_position) if board_square(start_position).piece.instance_of? Pawn
     en_passant(start_position, finish_position)
-    move_piece(start_position, finish_position)
+    move_piece(start_position, finish_position, move: true)
     print_board
   end
 
@@ -94,12 +99,13 @@ module GamePlay
   end
 
   def alterantive_input(colour, input)
-    save if input == 'save'
+    save(colour) if input == 'save'
     king = colour == 'white' ? board_square([4, 0]) : board_square([4, 7])
-    if input == 'oo'
+    case input
+    when 'oo'
       rook = colour == 'white' ? board_square([7, 0]) : board_square([7, 7])
       side = 'king'
-    elsif input == 'ooo'
+    when 'ooo'
       rook = colour == 'white' ? board_square([0, 0]) : board_square([0, 7])
       side = 'queen'
     end
@@ -138,7 +144,7 @@ module GamePlay
     if @loser == 'draw'
       puts "Stalemate it's a draw"
     else
-      puts @loser == 'white' ? 'Checkmate Black_wins' : 'Checkmate White_wins'
+      puts @loser == 'white' ? 'Checkmate Black wins' : 'Checkmate White wins'
     end
   end
 end

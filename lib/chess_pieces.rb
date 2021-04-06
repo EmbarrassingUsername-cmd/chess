@@ -68,7 +68,6 @@ class Knight < Piece
 end
 
 class Pawn < Piece
-
   def initialize(colour)
     super colour
     @symbol = (colour == 'white') ^ @darkmode ? "\u2659" : "\u265F"
