@@ -14,7 +14,7 @@ module Save
   end
 end
 
-# Class for loading game
+# class for loading game from YAML
 class LoadGame
   def load
     permitted = [Board, Piece, BoardSquare, Rook, Bishop, Queen, King, Knight, Pawn].freeze
